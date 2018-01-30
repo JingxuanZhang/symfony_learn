@@ -1,0 +1,56 @@
+{% extends '@Mobile/Common/layout.html.twig'%}
+{% block pageMain %}
+    <form action="{{ actionUrl }}" method="post">
+        <div>
+            <lable>引用的微信页面</lable>
+            <input type="text" name="refer_url">
+        </div>
+        <div>
+            <label for="">引用的微信cookie</label><textarea name="refer_cookie" id="" cols="30" rows="10"></textarea></div>
+        <div>
+            <button type="submit">查询</button>
+        </div>
+    </form>
+{% endblock %}
+{% block jsRun %}
+    <script>
+        require(['jquery', 'layer'], function ($, layer) {
+            var go_on = true, layer_idx = undefined;
+            function queryWechat() {
+                if(!go_on){
+                    layer.alert('请等待当前任务处理完成');
+                    return false;
+                }
+                var $this = $(this);
+                go_on = false;
+                $.ajax({
+                    url: '{{ actionUrl }}',
+                    type: 'post',
+                    data: $this.serialize(),
+                    beforeSend: function () {
+                        layer_idx = layer.load(2);
+                    },
+                    success: function(json){
+                        layer.close(layer_idx);
+                        go_on = true;
+                        if(json.status == 1){
+                            layer.msg('共处理'+json.data.total+'条记录');
+                        }else{
+                            layer.msg(json.message || '请求微信查询错误');
+                        }
+                        return false;
+                    },
+                    error: function () {
+                        go_on = true;
+                        layer.close(layer_idx);
+                        layer.alert('抱歉，请求微信查询出现错误');
+                        return false;
+                    }
+
+                });
+                return false;
+            }
+            $('form').on('submit', queryWechat);
+        })
+    </script>
+{% endblock %}

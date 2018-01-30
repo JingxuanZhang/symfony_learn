@@ -1,0 +1,15 @@
+mobile_homepage:
+    path:     /
+    defaults: { _controller: MobileBundle:Default:index }
+mobile_sync_code:
+    path:    /mobile/syncCode
+    defaults: {_controller: MobileBundle:Default:syncCode}
+mobile_sync_details:
+    path: /syncDetails
+    defaults: {_controller: MobileBundle:Default:syncDetails}
+mobile_wechat_query:
+    path: /queryWechat
+    defaults: {_controller: MobileBundle:Default:queryWechat}
+mobile_load_body:
+    path: /loadDetail
+    defaults: {_controller: MobileBundle:Default:loadBodies}

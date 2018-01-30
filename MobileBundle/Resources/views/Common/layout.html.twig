@@ -1,0 +1,21 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% block pageTitle %}
+    <title>{{ pageTitle|default('手机号码搜集') }}</title>
+    {% endblock %}
+</head>
+<body>
+{% block pageHeader %}{% endblock %}
+{% block pageMain %}{% endblock %}
+{% block pageFooter %}{% endblock %}
+</body>
+{% block jsBase %}
+    <script src="{{ asset('static/amd/require.js') }}"></script>
+    <script src="{{ asset('static/amd/config.js') }}"></script>
+{% endblock %}
+{% block jsRun %}{% endblock %}
+</html>

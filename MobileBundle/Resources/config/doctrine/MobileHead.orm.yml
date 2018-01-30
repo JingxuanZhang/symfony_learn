@@ -1,0 +1,35 @@
+MobileBundle\Entity\MobileHead:
+    type: entity
+    table: mobile_header
+    repositoryClass: MobileBundle\Repository\MobileHeadRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        code:
+            type: smallint
+            length: 3
+            unique: true
+            options:
+              comment: 手机号前3位
+        domain:
+            type: string
+            length: 30
+            options:
+              comment: 城市代码
+        createTime:
+            type: datetimetz
+            column: create_time
+        updateTime:
+            type: datetimetz
+            column: update_time
+    oneToMany:
+        bodies:
+          targetEntity: MobileBundle\Entity\MobileBody
+          mappedBy: head
+    lifecycleCallbacks:
+        prePersist: [ syncCreateTime ]
+        preUpdate: [ syncUpdateTime ]

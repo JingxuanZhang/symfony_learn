@@ -1,0 +1,40 @@
+MobileBundle\Entity\MobileDetail:
+  type: entity
+  table: mobile_details
+  repositoryClass: MobileBundle\Repository\MobileDetailRepository
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    content:
+      type: string
+      length: 11
+      options:
+        fixed: true
+        comment: '手机号码信息'
+    hasWechat:
+      type: boolean
+      options:
+        comment: '是否有微信号'
+    hasCheck:
+      type: boolean
+      options:
+        comment: '手机号是否绑定微信号是否已经查询完成'
+    createTime:
+      type: datetime
+      options:
+        comment: '记录添加时间'
+    updateTime:
+      type: datetime
+      options:
+        comment: '记录修改时间'
+  manyToOne:
+    body:
+      targetEntity: MobileBundle\Entity\MobileBody
+      inversedBy: details
+      cascade: ['persist']
+  lifecycleCallbacks:
+    prePersist: [syncCreateTime]
+    preUpdate: [syncUpdateTime]

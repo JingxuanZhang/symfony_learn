@@ -1,0 +1,144 @@
+{% extends '@Mobile/Common/layout.html.twig' %}
+{% block pageMain %}
+    <div>当前城市代码：{{ currentCityCode }}</div>
+    <div><a target="_blank" href="{{ path('mobile_wechat_query') }}" title="查询信息">查询微信</a></div>
+    <dl>
+        {% for item in list %}
+        <dt>{{ item.getCode()}}</dt>
+            {% set bodies = item.getBodies() %}
+            <dd>共加载<span class="body-num">{{ bodies.count() }}</span>条记录</dd>
+            <dd class="load-code" data-head-id="{{ item.getId() }}">加载号段</dd>
+            <dd class="sync-code" data-city="{{ item.getDomain() }}" data-code="{{ item.getCode() }}">同步号段</dd>
+        {% endfor %}
+    </dl>
+{% endblock %}
+{% block jsRun %}
+    <script type="text/html" id="body-item">
+        <{ each items as item }>
+        <dd><{item.prev_code}><span class="build-mobile" data-prev-code="<{item.prev_code}>">生成号码</span></dd>
+        <{ /each }>
+    </script>
+    <script type="text/html" id="detail-item">
+        <{ each items as item }>
+        <dd><{ item.prev_code }>
+            <{ if item.require_build }>
+            <span class="build-mobile" data-prev-code="<{ item.prev_code }>">生成号码</span>
+            <{ /if }>
+        </dd>
+        <{ /each }>
+    </script>
+    <script>
+        require(['jquery', 'layer', 'template'], function($, layer, tmpl){
+            tmpl.config('openTag', '<{');
+            tmpl.config('closeTag', '}>');
+            var go_on = true, layer_idx = undefined;
+            function syncBodies() {
+                if(!go_on){
+                    layer.alert('请等待其他部分信息同步成功');
+                    return false;
+                }
+                go_on = false;
+                var $this= $(this);
+                var id = $this.data('head-id');
+                $.ajax({
+                    url: '{{ load_body_url }}',
+                    type: 'post',
+                    data: {head_id: id},
+                    beforeSend: function(){
+                        layer_idx = layer.load(2);
+                    },
+                    success: function(json){
+                        layer.close(layer_idx);
+                        if(json.status == 1){
+                            var html = tmpl('detail-item', json.data);
+                            $this.after(html);
+                        }else{
+                            layer.msg(json.message || '加载手机号段信息失败');
+                        }
+                        go_on = true;
+                        return false;
+                    },
+                    error: function(){
+                        layer.close(layer_idx);
+                        alert('获取请求失败');
+                        go_on = true;
+                    }
+                });
+                return false;
+            }
+            function syncDetails() {
+                if(!go_on){
+                    layer.alert('请等待其他部分信息同步成功');
+                    return false;
+                }
+                go_on = false;
+                var $this= $(this);
+                var prev= $this.data('prev-code');
+                $.ajax({
+                    url: '{{ detail_url }}',
+                    type: 'post',
+                    data: {code: prev},
+                    beforeSend: function(){
+                        layer_idx = layer.load(2);
+                    },
+                    success: function(json){
+                        layer.close(layer_idx);
+                        if(json.status == 1){
+                            layer.msg('共生成'+json.data.total+'个号码');
+                            $this.remove();
+                        }else{
+                            layer.msg(json.message || '生成手机号码信息失败');
+                        }
+                        go_on = true;
+                        return false;
+                    },
+                    error: function(){
+                        layer.close(layer_idx);
+                        alert('获取请求失败');
+                        go_on = true;
+                    }
+                });
+                return false;
+            }
+            $('.sync-code').on('click', syncCode);
+            $('.load-code').on('click', syncBodies);
+            $('body').on('click', '.build-mobile', syncDetails);
+            function syncCode() {
+                if(!go_on){
+                    layer.alert('请等待其他部分信息同步成功');
+                    return false;
+                }
+                go_on = false;
+                var $this= $(this);
+                var city = $this.data('city');
+                var code = $this.data('code');
+                $.ajax({
+                    url: '{{ sync_url }}',
+                    type: 'post',
+                    data: {city: city, code: code},
+                    beforeSend: function(){
+                        layer_idx = layer.load(2);
+                    },
+                    success: function(json){
+                        layer.close(layer_idx);
+                        if(json.status == 1){
+                            var html = tmpl('body-item', json.data);
+                            $this.before(html);
+                            $this.remove();
+                        }else{
+                            layer.msg(json.message || '同步号段信息失败');
+                        }
+                        go_on = true;
+                        return false;
+                    },
+                    error: function(){
+                        layer.close(layer_idx);
+                        alert('获取请求失败');
+                        go_on = true;
+                    }
+                });
+                return false;
+            }
+        });
+    </script>
+{% endblock %}

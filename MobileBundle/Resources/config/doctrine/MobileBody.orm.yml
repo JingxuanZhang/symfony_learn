@@ -1,0 +1,67 @@
+MobileBundle\Entity\MobileBody:
+  type: entity
+  repositoryClass: MobileBundle\Repository\MobileBodyRepository
+  table: mobile_body
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    code:
+      type: string
+      length: 4
+      options:
+        fixed: true
+        comment: '手机号码中间4位'
+    prevCode:
+      type: integer
+      length: 7
+      options:
+        comment: '手机号前7位'
+    province:
+      type: string
+      length: 12
+      options:
+        comment: '所在省份'
+    city:
+      type: string
+      length: 12
+      options:
+        comment: '所在城市'
+    zipcode:
+      type: string
+      length: 4
+      options:
+        fixed: true
+        comment: '所在城市'
+    carrier:
+      type: string
+      length: 10
+      options:
+        comment: '运营商'
+    cardType:
+      type: string
+      length: 10
+      options:
+        comment: '卡类型'
+    createTime:
+      type: datetime
+      options:
+        comment: '记录添加时间'
+    updateTime:
+      type: datetime
+      options:
+        comment: '记录修改时间'
+  manyToOne:
+    head:
+      targetEntity: MobileBundle\Entity\MobileHead
+      inversedBy: bodies
+      cascade: ['persist']
+  oneToMany:
+    details:
+      targetEntity: MobileBundle\Entity\MobileDetail
+      mappedBy: body
+  lifecycleCallbacks:
+    prePersist: [syncCreateTime]
+    preUpdate: [syncUpdateTime]
